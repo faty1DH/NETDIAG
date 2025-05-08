@@ -1,0 +1,118 @@
+import platform
+import socket
+from ping3 import ping
+import psutil
+import speedtest
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor
+import datetime
+import time
+import tkinter as tk
+from tkinter import scrolledtext
+from tkinter import filedialog
+
+# 1. Infos système
+def afficher_infos_systeme():
+    afficher("=== Informations Système ===")
+    afficher("Système d'exploitation : " + platform.system())
+    afficher("Version : " + platform.version())
+    afficher("Architecture : " + platform.machine())
+    afficher("Processeur : " + platform.processor())
+    afficher("Utilisation CPU : " + str(psutil.cpu_percent()) + " %")
+    afficher("Utilisation RAM : " + str(psutil.virtual_memory().percent) + " %")
+
+# 2. Tester la connexion Internet
+def tester_ping(ip="8.8.8.8"):
+    afficher(f"=== Test de Ping vers {ip} ===")
+    result = ping(ip)
+    if result:
+        afficher(f"{ip} est joignable. Temps de réponse : {result:.2f} sec")
+    else:
+        afficher(f"{ip} n'est pas joignable.")
+
+# 3. Tester un port réseau
+def tester_port(ip, port):
+    afficher(f"=== Test du Port {port} sur {ip} ===")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    result = sock.connect_ex((ip, port))
+    if result == 0:
+        afficher(f"Port {port} OUVERT sur {ip}")
+    else:
+        afficher(f"Port {port} FERMÉ sur {ip}")
+    sock.close()
+
+# 4. Test de vitesse Internet
+def test_vitesse():
+    afficher("=== Test de Vitesse Internet ===")
+    st = speedtest.Speedtest()
+    download = st.download() / 1_000_000
+    upload = st.upload() / 1_000_000
+    ping_ms = st.results.ping
+    afficher(f"Download : {download:.2f} Mbps")
+    afficher(f"Upload : {upload:.2f} Mbps")
+    afficher(f"Ping : {ping_ms:.2f} ms")
+
+# 5. Ping en parallèle de plusieurs IPs
+def ping_en_parallele(ips):
+    afficher("=== Test de Connectivité Réseau ===")
+    def verifier(ip):
+        return ip, ping(ip)
+
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(verifier, ips)
+
+    tableau = []
+    for ip, rep in results:
+        statut = "Joignable" if rep else "Non joignable"
+        tableau.append({"IP": ip, "Statut": statut, "Temps de réponse": rep})
+
+    df = pd.DataFrame(tableau)
+    afficher(str(df))  # Affiche le dataframe dans la zone de texte
+    return df
+
+
+def exporter_rapport():
+    with open("rapport_diagnostic.txt", "w", encoding="utf-8") as f:
+        f.write(output.get("1.0", tk.END))
+    afficher("✅ Rapport enregistré sous 'rapport_diagnostic.txt'")
+
+def effacer_affichage():
+    output.delete("1.0", tk.END)
+
+# 6. Exécution globale
+def diagnostic_reseau():
+    afficher_infos_systeme()
+    tester_ping()
+    tester_port("192.168.1.1", 80)
+    test_vitesse()
+    ips = ["192.168.1.1", "8.8.8.8", "1.1.1.1"]
+    df = ping_en_parallele(ips)
+
+# Créer la fenêtre principale
+root = tk.Tk()
+root.title("Diagnostic Réseau")
+root.geometry("700x600")
+
+# Créer le widget scrolledtext pour afficher les messages
+output = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=80, height=30)
+output.pack(padx=10, pady=10)
+
+# Fonction pour afficher dans la zone de texte
+def afficher(message):
+    output.insert(tk.END, message + "\n")
+    output.see(tk.END)
+
+frame = tk.Frame(root)
+frame.pack()
+
+# Boutons pour déclencher les tests
+tk.Button(frame, text="Infos Système", command=afficher_infos_systeme).grid(row=0, column=0, padx=5, pady=5)
+tk.Button(frame, text="Test Ping", command=tester_ping).grid(row=0, column=1, padx=5, pady=5)
+tk.Button(frame, text="Test Port", command=lambda: tester_port("192.168.1.1", 80)).grid(row=0, column=2, padx=5, pady=5)
+tk.Button(frame, text="Test Vitesse", command=test_vitesse).grid(row=0, column=3, padx=5, pady=5)
+tk.Button(frame, text="Ping Parallèle", command=lambda: ping_en_parallele(["8.8.8.8", "1.1.1.1"])).grid(row=0, column=4, padx=5, pady=5)
+tk.Button(frame, text="Diagnostic Complet", command=diagnostic_reseau).grid(row=1, column=0, columnspan=5, pady=10)
+tk.Button(frame, text="Exporter Rapport", command=exporter_rapport).grid(row=2, column=0, columnspan=5, pady=10)
+tk.Button(frame, text="Effacer", command=effacer_affichage).grid(row=2, column=3, columnspan=2, pady=10)
+root.mainloop()

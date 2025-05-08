@@ -1,0 +1,181 @@
+/**
+ * Network Diagnostic Tool - Main Stylesheet
+ */
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --light-gray: #e9ecef;
+    --medium-gray: #dee2e6;
+    --border-radius: 0.5rem;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --transition-speed: 0.3s;
+}
+
+body[data-bs-theme="dark"] {
+    --light-color: #212529;
+    --dark-color: #f8f9fa;
+    --light-gray: #343a40;
+    --medium-gray: #495057;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color var(--transition-speed);
+}
+
+.card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: box-shadow var(--transition-speed);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
+    font-weight: 500;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-success {
+    background-color: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+}
+
+.status-warning {
+    background-color: var(--warning-color);
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.3);
+}
+
+.status-error {
+    background-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+}
+
+/* Log Styles */
+.log-container {
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.875rem;
+    border: 1px solid var(--medium-gray);
+}
+
+.log-item {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.log-time {
+    color: var(--secondary-color);
+    margin-right: 0.5rem;
+}
+
+.log-info .log-message {
+    color: var(--primary-color);
+}
+
+.log-success .log-message {
+    color: var(--success-color);
+}
+
+.log-warning .log-message {
+    color: var(--warning-color);
+}
+
+.log-error .log-message {
+    color: var(--danger-color);
+}
+
+/* Chart Containers */
+.cpu-usage-chart-container,
+.ram-usage-chart-container {
+    height: 150px;
+    position: relative;
+}
+
+/* Speed Test Styles */
+.speed-metric {
+    padding: 1rem;
+    transition: background-color var(--transition-speed);
+    border-radius: var(--border-radius);
+}
+
+.speed-metric:hover {
+    background-color: var(--light-gray);
+}
+
+.speed-metric h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+/* Tab Styling */
+.nav-tabs .nav-link {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.nav-tabs .nav-link:not(.active):hover {
+    background-color: var(--light-gray);
+    border-color: transparent;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        align-items: start !important;
+    }
+    
+    .card-header button {
+        margin-top: 0.5rem;
+    }
+    
+    .speed-metric {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Dark Mode Specific Styles */
+body[data-bs-theme="dark"] .log-container {
+    background-color: var(--light-color) !important;
+}
+
+body[data-bs-theme="dark"] .card {
+    background-color: var(--light-color);
+}
+
+body[data-bs-theme="dark"] .speed-metric:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Animation for loading transitions */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card:not(.d-none) {
+    animation: fadeIn 0.3s ease-in-out;
+}
